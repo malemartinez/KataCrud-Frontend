@@ -1,15 +1,15 @@
 import React, { useContext, useReducer, useEffect, useRef, useState, createContext } from 'react';
 
-const HOST_API = "http://localhost:8080/api";
+const HOST_API = "http://localhost:8080/api"; //direccion donde se encuentra el servidor de la API
 const initialState = {
   todo: { list: [], item: {} }
 };
-const Store = createContext(initialState)
+const Store = createContext(initialState)//creamos un context para evitar pasar las propos de padres a hijos en cada componente
 
 
 const Form = () => {
   const formRef = useRef(null);
-  const { dispatch, state: { todo } } = useContext(Store);
+  const { dispatch, state: { todo } } = useContext(Store); 
   const item = todo.item;
   const [state, setState] = useState(item);
 
@@ -48,7 +48,7 @@ const Form = () => {
     };
 
 
-    fetch(HOST_API + "/todos", {
+    fetch(HOST_API + "/todos", { //peticion para actualizar el todo
       method: "PUT",
       body: JSON.stringify(request),
       headers: {
@@ -63,7 +63,8 @@ const Form = () => {
       });
   }
 
-  return <form ref={formRef}>
+  //retorno del miniformulario para crear todos.
+  return <form ref={formRef}> 
     <input
       type="text"
       name="name"
@@ -82,7 +83,7 @@ const List = () => {
   const { dispatch, state: { todo } } = useContext(Store);
   const currentList = todo.list;
 
-  useEffect(() => {
+  useEffect(() => { //Sirve para que se ejecute el GET una sola vez despues del render y que solo haga render si hay algun cambio en dispatch
     fetch(HOST_API + "/todos")
       .then(response => response.json())
       .then((list) => {
@@ -91,7 +92,7 @@ const List = () => {
   }, [dispatch]);
 
 
-  const onDelete = (id) => {
+  const onDelete = (id) => { //funcion que realiza peticion al servidor para eliminar el todo
     fetch(HOST_API + "/todos/" + id, {
       method: "DELETE"
     }).then((list) => {
@@ -103,13 +104,13 @@ const List = () => {
     dispatch({ type: "edit-item", item: todo })
   };
 
-  const onChange = (event, todo) => {
+  const onChange = (event, todo) => { //Evento que mira los cambios en el input
     const request = {
       name: todo.name,
       id: todo.id,
       completed: event.target.checked
     };
-    fetch(HOST_API + "/todos", {
+    fetch(HOST_API + "/todos", { //peticion al servidor para actualizar los todos
       method: "PUT",
       body: JSON.stringify(request),
       headers: {
@@ -122,7 +123,7 @@ const List = () => {
       });
   };
 
-  const decorationDone = {
+  const decorationDone = { //Funcion que permite tachar el texto cuando se le da completed
     textDecoration: 'line-through'
   };
   return <div>
@@ -188,6 +189,7 @@ function reducer(state, action) {
   }
 }
 
+//funcion que nos permite crear un provider para comunicar los componentes entre si y que envien sus actualizaciones
 const StoreProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -197,7 +199,7 @@ const StoreProvider = ({ children }) => {
 
 }
 
-function App() { 
+function App() { // funcion principal donde renderizamos los componentes
   return <StoreProvider>
     <h3>To-Do List</h3>
     <Form />
